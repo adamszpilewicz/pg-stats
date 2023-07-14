@@ -1,13 +1,15 @@
 package main
 
 import (
+	"stats-pg/config"
 	"stats-pg/repository/postgres"
 	"stats-pg/server"
 )
 
 func main() {
 
-	postgresRepo, err := postgres.NewPostgresRepository("postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable")
+	configParams := config.InitConfig("config")
+	postgresRepo, err := postgres.NewPostgresRepository(configParams.GetString("database.connection.integration"))
 	if err != nil {
 		panic(err)
 	}
