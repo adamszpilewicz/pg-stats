@@ -2,30 +2,52 @@ package repository
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
-// Stats is an example structure for holding table stats.
-// You can define this based on your actual requirement.
+// Stats represents the stats for a database
 type Stats struct {
-	DatabaseName                sql.NullString
-	NumberOfConnections         sql.NullInt64
-	TotalTransactionsCommitted  sql.NullInt64
-	TotalTransactionsRolledback sql.NullInt64
-	BlocksRead                  sql.NullInt64
-	BlocksHit                   sql.NullInt64
-	TuplesReturned              sql.NullInt64
-	TuplesFetched               sql.NullInt64
-	TuplesInserted              sql.NullInt64
-	TuplesUpdated               sql.NullInt64
-	TuplesDeleted               sql.NullInt64
+	DatabaseName                StringValue `json:"database_name"`
+	NumberOfConnections         IntValue    `json:"number_of_connections"`
+	TotalTransactionsCommitted  IntValue    `json:"total_transactions_committed"`
+	TotalTransactionsRolledback IntValue    `json:"total_transactions_rolledback"`
+	BlocksRead                  IntValue    `json:"blocks_read"`
+	BlocksHit                   IntValue    `json:"blocks_hit"`
+	TuplesReturned              IntValue    `json:"tuples_returned"`
+	TuplesFetched               IntValue    `json:"tuples_fetched"`
+	TuplesInserted              IntValue    `json:"tuples_inserted"`
+	TuplesUpdated               IntValue    `json:"tuples_updated"`
+	TuplesDeleted               IntValue    `json:"tuples_deleted"`
+}
+
+type StringValue struct {
+	sql.NullString
+}
+
+func (v StringValue) MarshalJSON() ([]byte, error) {
+	if v.Valid {
+		return json.Marshal(v.String)
+	}
+	return json.Marshal(nil)
+}
+
+type IntValue struct {
+	sql.NullInt64
+}
+
+func (v IntValue) MarshalJSON() ([]byte, error) {
+	if v.Valid {
+		return json.Marshal(v.Int64)
+	}
+	return json.Marshal(nil)
 }
 
 type Repository interface {
-	// GetStats returns the stats for the given table
+	// GetStats returns the stats for all databases
 	GetStats() ([]Stats, error)
-	// GetStatsByName returns the stats for the given table
+	// GetStatsByName returns the stats for the given database name
 	GetStatsByName(ctx *gin.Context, dbName string) (Stats, error)
 }
 
